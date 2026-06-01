@@ -1,37 +1,104 @@
 import { COLLECTIONS } from '@/lib/firebase'
-import { getCollection, getDocument, queryCollection, dbQuery } from '@/lib/firestore'
+import { getCollection, getDocument } from '@/lib/firestore'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {
-    const [
-      properties,
-      agents,
-      promos,
-      visitors,
-      propertyTypes,
-      locations,
-      agency,
-      seo,
-      adminUsers,
-      articles,
-      reviews,
-    ] = await Promise.all([
-      queryCollection(COLLECTIONS.PROPERTIES, [dbQuery.orderBy('createdAt', 'desc')]),
-      getCollection(COLLECTIONS.AGENTS),
-      getCollection(COLLECTIONS.PROMOS),
-      queryCollection(COLLECTIONS.VISITORS, [dbQuery.orderBy('createdAt', 'desc')]),
-      queryCollection(COLLECTIONS.PROPERTY_TYPES, [dbQuery.orderBy('order', 'asc')]),
-      getCollection(COLLECTIONS.LOCATIONS),
-      getDocument(COLLECTIONS.AGENCY, 'agency-1'),
-      getDocument(COLLECTIONS.SEO, 'seo-1'),
-      getCollection(COLLECTIONS.ADMIN_USERS),
-      queryCollection(COLLECTIONS.ARTICLES, [dbQuery.orderBy('createdAt', 'desc')]),
-      queryCollection(COLLECTIONS.REVIEWS, [dbQuery.orderBy('createdAt', 'desc')]),
-    ])
+    console.log('[seed-data] Starting to fetch data...')
+
+    // Fetch collections with fallback to empty arrays if queries fail
+    const properties = await getCollection(COLLECTIONS.PROPERTIES).catch(e => {
+      console.error('[seed-data] Properties error:', e)
+      return []
+    })
+
+    const agents = await getCollection(COLLECTIONS.AGENTS).catch(e => {
+      console.error('[seed-data] Agents error:', e)
+      return []
+    })
+
+    const promos = await getCollection(COLLECTIONS.PROMOS).catch(e => {
+      console.error('[seed-data] Promos error:', e)
+      return []
+    })
+
+    const visitors = await getCollection(COLLECTIONS.VISITORS).catch(e => {
+      console.error('[seed-data] Visitors error:', e)
+      return []
+    })
+
+    const propertyTypes = await getCollection(COLLECTIONS.PROPERTY_TYPES).catch(e => {
+      console.error('[seed-data] Property types error:', e)
+      return []
+    })
+
+    const locations = await getCollection(COLLECTIONS.LOCATIONS).catch(e => {
+      console.error('[seed-data] Locations error:', e)
+      return []
+    })
+
+    const agency = await getDocument(COLLECTIONS.AGENCY, 'agency-1').catch(e => {
+      console.error('[seed-data] Agency error:', e)
+      return null
+    })
+
+    const seo = await getDocument(COLLECTIONS.SEO, 'seo-1').catch(e => {
+      console.error('[seed-data] SEO error:', e)
+      return null
+    })
+
+    const adminUsers = await getCollection(COLLECTIONS.ADMIN_USERS).catch(e => {
+      console.error('[seed-data] Admin users error:', e)
+      return []
+    })
+
+    const articles = await getCollection(COLLECTIONS.ARTICLES).catch(e => {
+      console.error('[seed-data] Articles error:', e)
+      return []
+    })
+
+    const reviews = await getCollection(COLLECTIONS.REVIEWS).catch(e => {
+      console.error('[seed-data] Reviews error:', e)
+      return []
+    })
+
+    console.log('[seed-data] Data fetched successfully')
+
+    // Sort properties manually (client-side sorting instead of query orderBy)
+    const sortedProperties = properties.sort((a: any, b: any) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
+
+    // Sort visitors manually
+    const sortedVisitors = visitors.sort((a: any, b: any) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
+
+    // Sort property types by order
+    const sortedPropertyTypes = propertyTypes.sort((a: any, b: any) => {
+      return (a.order || 0) - (b.order || 0)
+    })
+
+    // Sort articles manually
+    const sortedArticles = articles.sort((a: any, b: any) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
+
+    // Sort reviews manually
+    const sortedReviews = reviews.sort((a: any, b: any) => {
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+      return dateB - dateA
+    })
 
     // Format properties with promo data
-    const formattedProperties = properties.map((prop: any) => ({
+    const formattedProperties = sortedProperties.map((prop: any) => ({
       ...prop,
       images: Array.isArray(prop.images) ? prop.images : [],
       promos: prop.promoIds
@@ -40,14 +107,14 @@ export async function GET() {
     }))
 
     // Format articles
-    const formattedArticles = articles.map((art: any) => ({
+    const formattedArticles = sortedArticles.map((art: any) => ({
       ...art,
       createdAt: art.createdAt,
       updatedAt: art.updatedAt,
     }))
 
     // Format reviews
-    const formattedReviews = reviews.map((rev: any) => ({
+    const formattedReviews = sortedReviews.map((rev: any) => ({
       ...rev,
       createdAt: rev.createdAt,
       updatedAt: rev.updatedAt,
@@ -65,8 +132,8 @@ export async function GET() {
       properties: formattedProperties,
       agents,
       promos,
-      visitors,
-      propertyTypes,
+      visitors: sortedVisitors,
+      propertyTypes: sortedPropertyTypes,
       locations,
       agency,
       seo,
@@ -74,8 +141,11 @@ export async function GET() {
       articles: formattedArticles,
       reviews: formattedReviews,
     })
-  } catch (error) {
-    console.error('Error fetching data:', error)
-    return NextResponse.json({ error: 'Failed to fetch data' }, { status: 500 })
+  } catch (error: any) {
+    console.error('[seed-data] Error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch data', message: error.message },
+      { status: 500 }
+    )
   }
 }
