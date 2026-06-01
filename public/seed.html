@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PropertiHub - Seeding Database</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      transition: transform 0.3s ease;
+    }
+    .stat-card:nth-child(2) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .stat-card:nth-child(3) {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .stat-card:nth-child(4) {
+      background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .success-check {
+      animation: scaleIn 0.5s ease-out;
+    }
+    @keyframes scaleIn {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+        🏠 PropertiHub
+      </h1>
+      <p class="text-white/90 text-lg">Database Seeding Tool</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-card rounded-2xl shadow-2xl p-6 md:p-8">
+      <!-- Instructions -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 class="font-semibold text-blue-900 mb-2">📋 Instruksi:</h3>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>• Klik tombol "Upload Massal" untuk mengisi database dengan data dummy</li>
+          <li>• Data yang ada akan dihapus dan diganti dengan data baru</li>
+          <li>• Pastikan database sudah terhubung dengan benar</li>
+          <li>• Setelah selesai, login dengan username: <strong>admin</strong>, password: <strong>admin123</strong></li>
+        </ul>
+      </div>
+
+      <!-- Status Section -->
+      <div id="status-section" class="mb-6 hidden">
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div id="loading-spinner" class="spinner hidden"></div>
+            <span id="status-text" class="font-medium text-gray-700">Status: Siap</span>
+          </div>
+          <div id="progress-log" class="text-sm text-gray-600 space-y-1 max-h-40 overflow-y-auto">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex gap-4 mb-8">
+        <button
+          id="seed-btn"
+          onclick="seedDatabase()"
+          class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span id="btn-text">🚀 Upload Massal</span>
+        </button>
+        <button
+          onclick="checkStatus()"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-all duration-300"
+        >
+          🔄 Refresh
+        </button>
+      </div>
+
+      <!-- Stats Section (Hidden initially) -->
+      <div id="stats-section" class="hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 Data Berhasil Diupload</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-properties">0</div>
+            <div class="text-sm opacity-90">Properties</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-agents">0</div>
+            <div class="text-sm opacity-90">Agents</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-locations">0</div>
+            <div class="text-sm opacity-90">Locations</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-articles">0</div>
+            <div class="text-sm opacity-90">Articles</div>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="bg-green-100 border border-green-300 rounded-lg p-4 text-center">
+          <div class="text-6xl success-check mb-2">✅</div>
+          <h3 class="text-lg font-semibold text-green-800">Selesai!</h3>
+          <p class="text-sm text-green-700">Database berhasil diisi dengan data dummy</p>
+          <a
+            href="/"
+            class="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+          >
+            Buka Aplikasi →
+          </a>
+        </div>
+      </div>
+
+      <!-- Error Section (Hidden initially) -->
+      <div id="error-section" class="hidden">
+        <div class="bg-red-100 border border-red-300 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-4xl">❌</span>
+            <h3 class="text-lg font-semibold text-red-800">Terjadi Error</h3>
+          </div>
+          <p id="error-message" class="text-sm text-red-700 mb-4"></p>
+          <button
+            onclick="seedDatabase()"
+            class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-white/80 text-sm">
+      <p>© 2024 PropertiHub. All rights reserved.</p>
+    </div>
+  </div>
+
+  <script>
+    async function seedDatabase() {
+      const seedBtn = document.getElementById('seed-btn');
+      const btnText = document.getElementById('btn-text');
+      const statusSection = document.getElementById('status-section');
+      const loadingSpinner = document.getElementById('loading-spinner');
+      const statusText = document.getElementById('status-text');
+      const progressLog = document.getElementById('progress-log');
+      const statsSection = document.getElementById('stats-section');
+      const errorSection = document.getElementById('error-section');
+
+      // Reset UI
+      statsSection.classList.add('hidden');
+      errorSection.classList.add('hidden');
+      statusSection.classList.remove('hidden');
+      loadingSpinner.classList.remove('hidden');
+      seedBtn.disabled = true;
+      btnText.textContent = '⏳ Sedang Mengupload...';
+      statusText.textContent = 'Status: Memproses...';
+      progressLog.innerHTML = '<div class="text-blue-600">🔄 Memulai proses seeding...</div>';
+
+      try {
+        const response = await fetch('/api/seed-dummy-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Success
+          progressLog.innerHTML += `
+            <div class="text-green-600">✅ ${data.message}</div>
+            <div class="text-gray-600">📊 Stats: ${JSON.stringify(data.stats, null, 2)}</div>
+          `;
+
+          // Update stats
+          document.getElementById('stat-properties').textContent = data.stats.properties;
+          document.getElementById('stat-agents').textContent = data.stats.agents;
+          document.getElementById('stat-locations').textContent = data.stats.locations;
+          document.getElementById('stat-articles').textContent = data.stats.articles;
+
+          statusText.textContent = 'Status: Selesai!';
+          loadingSpinner.classList.add('hidden');
+          btnText.textContent = '✅ Selesai';
+          statsSection.classList.remove('hidden');
+          statsSection.classList.add('fade-in');
+        } else {
+          // Error
+          progressLog.innerHTML += `<div class="text-red-600">❌ ${data.error}</div>`;
+          document.getElementById('error-message').textContent = data.details || data.error;
+          statusText.textContent = 'Status: Error';
+          loadingSpinner.classList.add('hidden');
+          errorSection.classList.remove('hidden');
+          seedBtn.disabled = false;
+          btnText.textContent = '🚀 Upload Massal';
+        }
+      } catch (error) {
+        // Network error
+        progressLog.innerHTML += `<div class="text-red-600">❌ Network error: ${error.message}</div>`;
+        document.getElementById('error-message').textContent =
+          'Gagal terhubung ke server. Pastikan server Next.js sedang berjalan.';
+        statusText.textContent = 'Status: Error';
+        loadingSpinner.classList.add('hidden');
+        errorSection.classList.remove('hidden');
+        seedBtn.disabled = false;
+        btnText.textContent = '🚀 Upload Massal';
+      }
+    }
+
+    async function checkStatus() {
+      try {
+        const response = await fetch('/api/seed-data');
+        const data = await response.json();
+
+        if (data.properties) {
+          alert(`Database Status:\n\nProperties: ${data.properties.length}\nAgents: ${data.agents?.length || 0}\nLocations: ${data.locations?.length || 0}\nArticles: ${data.articles?.length || 0}\nReviews: ${data.reviews?.length || 0}`);
+        } else {
+          alert('Database kosong atau terjadi error saat mengambil data.');
+        }
+      } catch (error) {
+        alert('Gagal mengecek status database. Pastikan server berjalan.');
+      }
+    }
+  </script>
+</body>
+</html>

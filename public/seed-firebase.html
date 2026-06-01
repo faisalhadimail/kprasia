@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PropertiHub - Firebase Seeding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 50%, #FFD23F 100%);
+      min-height: 100vh;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .firebase-orange {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+      transition: transform 0.3s ease;
+    }
+    .stat-card:nth-child(2) {
+      background: linear-gradient(135deg, #F7931E 0%, #FFD23F 100%);
+    }
+    .stat-card:nth-child(3) {
+      background: linear-gradient(135deg, #FFD23F 0%, #FF6B35 100%);
+    }
+    .stat-card:nth-child(4) {
+      background: linear-gradient(135deg, #F7931E 0%, #FF6B35 100%);
+    }
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 3px solid white;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .success-check {
+      animation: scaleIn 0.5s ease-out;
+    }
+    @keyframes scaleIn {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .firebase-logo {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%);
+    }
+  </style>
+</head>
+<body class="p-4 md:p-8">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <div class="inline-block firebase-logo text-white rounded-full p-4 mb-4 shadow-lg">
+        <svg class="w-16 h-16" fill="white" viewBox="0 0 24 24">
+          <path d="M3.89 15.673L6.255.461A.542.542 0 017.27.285l2.543 4.771zM21.223 17.7l-3.408 11.316a.643.643 0 01-1.154.248L2.777 7.237zm-2.751-2.533l-5.616-9.038a.463.463 0 01.49-.696l10.846 1.958z"/>
+        </svg>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
+        🏠 PropertiHub
+      </h1>
+      <p class="text-white/90 text-lg font-medium">Firebase Database Seeding Tool</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-card rounded-2xl shadow-2xl p-6 md:p-8">
+      <!-- Firebase Status -->
+      <div id="firebase-status" class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+        <h3 class="font-semibold text-orange-900 mb-2 flex items-center gap-2">
+          <span class="text-2xl">🔥</span>
+          Firebase Status
+        </h3>
+        <p class="text-sm text-orange-800" id="firebase-status-text">Memeriksa koneksi Firebase...</p>
+      </div>
+
+      <!-- Instructions -->
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 class="font-semibold text-blue-900 mb-2">📋 Instruksi:</h3>
+        <ul class="text-sm text-blue-800 space-y-1">
+          <li>• Klik tombol "Upload Massal" untuk mengisi Firebase dengan data dummy</li>
+          <li>• Pastikan konfigurasi Firebase sudah benar di file <code>.env</code></li>
+          <li>• Data yang ada di Firebase akan dihapus dan diganti dengan data baru</li>
+          <li>• Setelah selesai, login dengan username: <strong>admin</strong>, password: <strong>admin123</strong></li>
+        </ul>
+      </div>
+
+      <!-- Status Section -->
+      <div id="status-section" class="mb-6 hidden">
+        <div class="bg-gray-100 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div id="loading-spinner" class="spinner hidden"></div>
+            <span id="status-text" class="font-medium text-gray-700">Status: Siap</span>
+          </div>
+          <div id="progress-log" class="text-sm text-gray-600 space-y-1 max-h-40 overflow-y-auto font-mono bg-gray-50 p-3 rounded">
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <div class="flex gap-4 mb-8">
+        <button
+          id="seed-btn"
+          onclick="seedFirebase()"
+          class="flex-1 firebase-orange hover:opacity-90 text-white font-semibold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span id="btn-text">🔥 Upload Massal ke Firebase</span>
+        </button>
+        <button
+          onclick="checkStatus()"
+          class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-4 px-6 rounded-xl transition-all duration-300"
+        >
+          🔄 Refresh
+        </button>
+      </div>
+
+      <!-- Stats Section (Hidden initially) -->
+      <div id="stats-section" class="hidden">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 Data Berhasil Diupload</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-properties">0</div>
+            <div class="text-sm opacity-90">Properties</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-agents">0</div>
+            <div class="text-sm opacity-90">Agents</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-locations">0</div>
+            <div class="text-sm opacity-90">Locations</div>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-white">
+            <div class="text-3xl font-bold" id="stat-articles">0</div>
+            <div class="text-sm opacity-90">Articles</div>
+          </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="bg-green-100 border border-green-300 rounded-lg p-4 text-center">
+          <div class="text-6xl success-check mb-2">✅</div>
+          <h3 class="text-lg font-semibold text-green-800">Selesai!</h3>
+          <p class="text-sm text-green-700">Firebase berhasil diisi dengan data dummy</p>
+          <a
+            href="/"
+            class="inline-block mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-lg transition-colors"
+          >
+            Buka Aplikasi →
+          </a>
+        </div>
+      </div>
+
+      <!-- Error Section (Hidden initially) -->
+      <div id="error-section" class="hidden">
+        <div class="bg-red-100 border border-red-300 rounded-lg p-4">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-4xl">❌</span>
+            <h3 class="text-lg font-semibold text-red-800">Terjadi Error</h3>
+          </div>
+          <p id="error-message" class="text-sm text-red-700 mb-4"></p>
+          <div class="bg-red-50 p-3 rounded mb-4">
+            <p class="text-xs text-red-600 font-medium">Solusi:</p>
+            <ul class="text-xs text-red-600 list-disc list-inside mt-1">
+              <li>Pastikan konfigurasi Firebase di file <code>.env</code> sudah benar</li>
+              <li>Pastikan Firestore database sudah dibuat di Firebase Console</li>
+              <li>Pastikan aturan Firestore mengizinkan read/write</li>
+            </ul>
+          </div>
+          <button
+            onclick="seedFirebase()"
+            class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            Coba Lagi
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase Config Helper -->
+    <div class="glass-card rounded-2xl shadow-lg p-6 mt-6">
+      <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+        <span class="text-xl">⚙️</span>
+        Konfigurasi Firebase
+      </h3>
+      <div class="text-sm text-gray-600 space-y-2">
+        <p>1. Buka <a href="https://console.firebase.google.com/" target="_blank" class="text-orange-600 hover:underline">Firebase Console</a></p>
+        <p>2. Buat project baru atau gunakan yang sudah ada</p>
+        <p>3. Buka Project Settings → General → Your apps → Web app</p>
+        <p>4. Copy konfigurasi dan update file <code>.env</code> di project Anda</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-white/80 text-sm">
+      <p>© 2024 PropertiHub. Powered by Firebase 🔥</p>
+    </div>
+  </div>
+
+  <script>
+    let firebaseInitialized = false;
+
+    async function seedFirebase() {
+      const seedBtn = document.getElementById('seed-btn');
+      const btnText = document.getElementById('btn-text');
+      const statusSection = document.getElementById('status-section');
+      const loadingSpinner = document.getElementById('loading-spinner');
+      const statusText = document.getElementById('status-text');
+      const progressLog = document.getElementById('progress-log');
+      const statsSection = document.getElementById('stats-section');
+      const errorSection = document.getElementById('error-section');
+
+      // Reset UI
+      statsSection.classList.add('hidden');
+      errorSection.classList.add('hidden');
+      statusSection.classList.remove('hidden');
+      loadingSpinner.classList.remove('hidden');
+      seedBtn.disabled = true;
+      btnText.textContent = '⏳ Sedang Mengupload...';
+      statusText.textContent = 'Status: Memproses...';
+      progressLog.innerHTML = '<div class="text-blue-600">🔄 Memulai proses seeding ke Firebase...</div>';
+
+      try {
+        const response = await fetch('/api/seed-firebase', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Success
+          progressLog.innerHTML += `
+            <div class="text-green-600">✅ ${data.message}</div>
+            <div class="text-gray-600">📊 Stats: ${JSON.stringify(data.stats, null, 2)}</div>
+          `;
+
+          // Update stats
+          document.getElementById('stat-properties').textContent = data.stats.properties;
+          document.getElementById('stat-agents').textContent = data.stats.agents;
+          document.getElementById('stat-locations').textContent = data.stats.locations;
+          document.getElementById('stat-articles').textContent = data.stats.articles;
+
+          statusText.textContent = 'Status: Selesai!';
+          loadingSpinner.classList.add('hidden');
+          btnText.textContent = '✅ Selesai';
+          statsSection.classList.remove('hidden');
+          statsSection.classList.add('fade-in');
+        } else {
+          // Error
+          progressLog.innerHTML += `<div class="text-red-600">❌ ${data.error}</div>`;
+          document.getElementById('error-message').textContent = data.details || data.error;
+          statusText.textContent = 'Status: Error';
+          loadingSpinner.classList.add('hidden');
+          errorSection.classList.remove('hidden');
+          seedBtn.disabled = false;
+          btnText.textContent = '🔥 Upload Massal ke Firebase';
+        }
+      } catch (error) {
+        // Network error
+        progressLog.innerHTML += `<div class="text-red-600">❌ Network error: ${error.message}</div>`;
+        document.getElementById('error-message').textContent =
+          'Gagal terhubung ke server. Pastikan server Next.js sedang berjalan.';
+        statusText.textContent = 'Status: Error';
+        loadingSpinner.classList.add('hidden');
+        errorSection.classList.remove('hidden');
+        seedBtn.disabled = false;
+        btnText.textContent = '🔥 Upload Massal ke Firebase';
+      }
+    }
+
+    async function checkStatus() {
+      try {
+        const response = await fetch('/api/seed-data');
+        const data = await response.json();
+
+        if (data.properties) {
+          alert(`Database Status:\n\nProperties: ${data.properties.length}\nAgents: ${data.agents?.length || 0}\nLocations: ${data.locations?.length || 0}\nArticles: ${data.articles?.length || 0}\nReviews: ${data.reviews?.length || 0}`);
+        } else {
+          alert('Database kosong atau terjadi error saat mengambil data.');
+        }
+      } catch (error) {
+        alert('Gagal mengecek status database. Pastikan server berjalan.');
+      }
+    }
+
+    // Check Firebase config status on load
+    async function checkFirebaseConfig() {
+      const statusText = document.getElementById('firebase-status-text');
+
+      try {
+        // Try to fetch a document to check if Firebase is configured
+        const response = await fetch('/api/seed-firebase', {
+          method: 'GET',
+        });
+
+        if (response.ok) {
+          statusText.innerHTML = '<span class="text-green-700">✅ Firebase terkonfigurasi dengan benar</span>';
+          firebaseInitialized = true;
+        } else {
+          statusText.innerHTML = '<span class="text-red-700">⚠️ Mungkin belum dikonfigurasi. Coba upload data untuk testing.</span>';
+        }
+      } catch (error) {
+        statusText.innerHTML = '<span class="text-orange-700">ℹ️ Status Firebase belum diketahui. Coba upload data untuk testing.</span>';
+      }
+    }
+
+    // Initialize on page load
+    window.onload = function() {
+      checkFirebaseConfig();
+    };
+  </script>
+</body>
+</html>
