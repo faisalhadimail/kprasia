@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getCollection, updateDocument, COLLECTIONS } from '@/lib/firestore'
+import { getCollection, updateDocument } from '@/lib/firestore'
+import { COLLECTIONS } from '@/lib/firebase'
 
 /**
  * Migration API to fix images stored as JSON strings
