@@ -78,6 +78,12 @@ export interface SEO {
   description: string
   keywords: string
   image: string
+  robotsTxt?: string
+  googleAnalyticsId?: string
+  googleTagManagerId?: string
+  facebookPixelId?: string
+  customHeadScript?: string
+  customBodyScript?: string
 }
 
 export interface AdminUser {

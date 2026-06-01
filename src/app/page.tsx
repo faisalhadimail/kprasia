@@ -10,7 +10,7 @@ import {
   LogOut, ChevronDown, Sparkles, Calculator,
   Shield, Map, Layers, TrendingUp, Link2, Eye, Wand2, Share2, FileCode, Copy, Check,
   Upload, FileSpreadsheet, AlertCircle, CheckCircle2,
-  AlertTriangle, HardDrive, Database, Clock, RotateCcw, Palette, BookOpen, Star, Newspaper, Quote, PenLine, EyeOff, Calendar, MessageSquare
+  AlertTriangle, HardDrive, Database, Clock, RotateCcw, Palette, BookOpen, Star, Newspaper, Quote, PenLine, EyeOff, Calendar, MessageSquare, Bot, Code
 } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
@@ -2002,6 +2002,7 @@ function AdminSettings() {
   const sections = [
     { label: 'Profil Agensi', desc: agency?.name || '-', icon: Building2, screen: 'admin-agency-form' as const },
     { label: 'SEO Global', desc: seo?.frontendUrl || seo?.title ? (seo?.frontendUrl || seo?.title || '-').substring(0, 40) + '...' : '-', icon: Globe, screen: 'admin-seo-form' as const },
+    { label: 'Analytics', desc: 'Google Analytics, GTM, Facebook Pixel', icon: TrendingUp, screen: 'admin-analytics' as const },
     { label: 'Database Kabupaten', desc: `${locations.length} kabupaten terdaftar`, icon: Map, screen: 'admin-locations' as const },
     { label: 'Jenis Properti', desc: `${propertyTypes.length} jenis terdaftar`, icon: Layers, screen: 'admin-property-types' as const },
     { label: 'Manajemen User', desc: `${adminUsers.length} user terdaftar`, icon: Shield, screen: 'admin-users' as const },
@@ -2078,12 +2079,25 @@ function AdminSEOForm() {
   const [seoDesc, setSeoDesc] = useState(seo?.description || '')
   const [seoKeywords, setSeoKeywords] = useState(seo?.keywords || '')
   const [seoImage, setSeoImage] = useState(seo?.image || '')
+  const [robotsTxt, setRobotsTxt] = useState(seo?.robotsTxt || `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api
+Sitemap: ${seo?.frontendUrl || 'https://yourwebsite.com'}/sitemap.xml`)
   const [sitemapStatus, setSitemapStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [robotsStatus, setRobotsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
   const cleanUrl = frontendUrl.replace(/\/+$/, '')
 
   const handleSaveSEO = async () => {
-    await saveSEO({ frontendUrl, title: seoTitle, description: seoDesc, keywords: seoKeywords, image: seoImage })
+    await saveSEO({
+      frontendUrl,
+      title: seoTitle,
+      description: seoDesc,
+      keywords: seoKeywords,
+      image: seoImage,
+      robotsTxt
+    })
     useStore.getState().showModal('SEO berhasil disimpan!')
   }
 
@@ -2109,6 +2123,35 @@ function AdminSEOForm() {
     } catch {
       setSitemapStatus('error')
       setTimeout(() => setSitemapStatus('idle'), 3000)
+    }
+  }
+
+  const handleGenerateRobots = async () => {
+    setRobotsStatus('loading')
+    try {
+      const res = await fetch('/api/seo', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ robotsTxt })
+      })
+
+      if (res.ok) {
+        const blob = new Blob([robotsTxt], { type: 'text/plain' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'robots.txt'
+        a.click()
+        URL.revokeObjectURL(url)
+        setRobotsStatus('success')
+        setTimeout(() => setRobotsStatus('idle'), 3000)
+      } else {
+        setRobotsStatus('error')
+        setTimeout(() => setRobotsStatus('idle'), 3000)
+      }
+    } catch {
+      setRobotsStatus('error')
+      setTimeout(() => setRobotsStatus('idle'), 3000)
     }
   }
 
@@ -2245,6 +2288,240 @@ function AdminSEOForm() {
               </>
             )}
           </button>
+        </div>
+
+        {/* Robots.txt */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+              <Bot className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Robots.txt</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Atur bagaimana search engine crawl website Anda. File robots.txt memberikan instruksi ke crawler seperti Google.
+          </p>
+          <div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Content robots.txt</label>
+            <textarea
+              value={robotsTxt}
+              onChange={(e) => setRobotsTxt(e.target.value)}
+              rows={8}
+              placeholder="User-agent: *&#10;Allow: /&#10;Disallow: /admin&#10;Sitemap: https://yourwebsite.com/sitemap.xml"
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+            />
+            <p className="text-[10px] text-gray-400 mt-1">Gunakan format standar robots.txt</p>
+          </div>
+
+          {/* Preview */}
+          {robotsTxt && (
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+              <div className="flex items-center gap-2 mb-2">
+                <Bot className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">Preview</span>
+              </div>
+              <pre className="text-xs text-gray-600 dark:text-gray-400 font-mono whitespace-pre-wrap break-all">{robotsTxt}</pre>
+            </div>
+          )}
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleGenerateRobots}
+              disabled={robotsStatus === 'loading'}
+              className="flex-1 py-3 rounded-xl bg-orange-600 text-white font-semibold shadow-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {robotsStatus === 'loading' ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Generating...
+                </>
+              ) : robotsStatus === 'success' ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Berhasil!
+                </>
+              ) : robotsStatus === 'error' ? (
+                <>
+                  <X className="w-4 h-4" />
+                  Gagal
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4" />
+                  Download
+                </>
+              )}
+            </button>
+            {cleanUrl && (
+              <div className="flex-1 p-3 rounded-xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 flex items-center justify-center">
+                <p className="text-[10px] font-medium text-orange-600 uppercase tracking-wider">Endpoint</p>
+                <p className="text-xs text-orange-700 dark:text-orange-400 font-mono ml-2">{cleanUrl}/robots.txt</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ─── Admin Analytics ─── */
+function AdminAnalytics() {
+  const { navigate, seo, saveSEO } = useStore()
+
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(seo?.googleAnalyticsId || '')
+  const [googleTagManagerId, setGoogleTagManagerId] = useState(seo?.googleTagManagerId || '')
+  const [facebookPixelId, setFacebookPixelId] = useState(seo?.facebookPixelId || '')
+  const [customHeadScript, setCustomHeadScript] = useState(seo?.customHeadScript || '')
+  const [customBodyScript, setCustomBodyScript] = useState(seo?.customBodyScript || '')
+
+  const handleSave = async () => {
+    await saveSEO({
+      ...seo,
+      googleAnalyticsId,
+      googleTagManagerId,
+      facebookPixelId,
+      customHeadScript,
+      customBodyScript,
+    })
+    useStore.getState().showModal('Analytics berhasil disimpan!')
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-4">
+      <AdminHeader title="Analytics" onBack={() => navigate('admin-settings')} />
+      <div className="p-4 max-w-2xl mx-auto space-y-4">
+        {/* Google Analytics */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Google Analytics</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Masukkan ID Google Analytics 4 (GA4) untuk melacak trafik dan perilaku pengunjung.
+          </p>
+          <InputField
+            label="GA4 Measurement ID"
+            value={googleAnalyticsId}
+            onChange={setGoogleAnalyticsId}
+            placeholder="G-XXXXXXXXXX"
+            pattern="^G-[A-Z0-9]+$"
+          />
+          <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30">
+            <p className="text-[10px] font-medium text-blue-600 uppercase tracking-wider mb-1">Format</p>
+            <p className="text-xs text-blue-700 dark:text-blue-400 font-mono">G-XXXXXXXXXX (contoh: G-XXXXXXXXXX)</p>
+          </div>
+        </div>
+
+        {/* Google Tag Manager */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
+              <FileCode className="w-4 h-4 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Google Tag Manager</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Kelola semua tag dan tracking codes dari satu tempat dengan Google Tag Manager.
+          </p>
+          <InputField
+            label="GTM Container ID"
+            value={googleTagManagerId}
+            onChange={setGoogleTagManagerId}
+            placeholder="GTM-XXXXXXX"
+            pattern="^GTM-[A-Z0-9]+$"
+          />
+          <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30">
+            <p className="text-[10px] font-medium text-green-600 uppercase tracking-wider mb-1">Format</p>
+            <p className="text-xs text-green-700 dark:text-green-400 font-mono">GTM-XXXXXXX (contoh: GTM-ABC1234)</p>
+          </div>
+        </div>
+
+        {/* Facebook Pixel */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-blue-50 dark:bg-[#1877F2]/20 flex items-center justify-center">
+              <Share2 className="w-4 h-4 text-[#1877F2] dark:text-[#1877F2]" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Facebook Pixel</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Track events and conversions dari Facebook Ads dan Facebook Pixel.
+          </p>
+          <InputField
+            label="Pixel ID"
+            value={facebookPixelId}
+            onChange={setFacebookPixelId}
+            placeholder="XXXXXXXXXXXXXXXX"
+            type="text"
+          />
+          <div className="p-3 rounded-xl bg-[#1877F2]/10 dark:bg-[#1877F2]/10 border border-[#1877F2]/20 dark:border-[#1877F2]/20">
+            <p className="text-[10px] font-medium text-[#1877F2] uppercase tracking-wider mb-1">Format</p>
+            <p className="text-xs text-[#1877F2] font-mono">XXXXXXXXXXXXXXXX (contoh: 1234567890123456)</p>
+          </div>
+        </div>
+
+        {/* Custom Head Script */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/20 flex items-center justify-center">
+              <Code className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Custom Head Script</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Tambahkan script custom di bagian &lt;head&gt; (meta tags, lain-lain).
+          </p>
+          <textarea
+            value={customHeadScript}
+            onChange={(e) => setCustomHeadScript(e.target.value)}
+            rows={8}
+            placeholder="<!-- Meta tags -->&#10;<meta name='verification' content='xxx' />&#10;&#10;<!-- Custom scripts -->&#10;<script>&#10;  // Your custom code here&#10;</script>"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+          />
+        </div>
+
+        {/* Custom Body Script */}
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-sm p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            </div>
+            <h3 className="font-semibold text-gray-800 dark:text-gray-200">Custom Body Script</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Tambahkan script custom di bagian &lt;body&gt; (live chat, analytics, dll).
+          </p>
+          <textarea
+            value={customBodyScript}
+            onChange={(e) => setCustomBodyScript(e.target.value)}
+            rows={8}
+            placeholder="<!-- Live Chat Widget -->&#10;<script>&#10;  // Your live chat code here&#10;</script>&#10;&#10;<!-- Third-party analytics -->&#10;<script>&#10;  // Your analytics code here&#10;</script>"
+            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+          />
+        </div>
+
+        {/* Save Button */}
+        <button
+          onClick={handleSave}
+          className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 transition-colors"
+        >
+          Simpan Analytics
+        </button>
+
+        {/* Warning */}
+        <div className="bg-amber-50 dark:bg-amber-900/20 rounded-3xl border border-amber-200 dark:border-amber-900/30 p-4">
+          <div className="flex gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-amber-800 dark:text-amber-200 text-sm">Peringatan</h4>
+              <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                Pastikan untuk mengecek keamanan dan kepatuhan GDPR/privacy saat menambahkan script analytics.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3903,6 +4180,7 @@ export function AppContent({ initialSlug }: { initialSlug?: string } = {}) {
       case 'admin-property-type-form': return <AdminPropertyTypeForm />
       case 'admin-agency-form': return <AdminAgencyForm />
       case 'admin-seo-form': return <AdminSEOForm />
+      case 'admin-analytics': return <AdminAnalytics />
       case 'admin-backup-restore': return <AdminBackupRestore />
       case 'admin-theme': return <AdminThemeSettings />
       case 'admin-articles': return <AdminArticles />
