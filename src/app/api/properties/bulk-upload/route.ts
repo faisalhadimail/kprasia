@@ -244,18 +244,17 @@ export async function POST(req: NextRequest) {
           type,
           buildingType,
           description,
-          images: JSON.stringify(images),
+          images, // Store as array, not JSON string
           brochure,
           permalink: finalPermalink,
           seoTitle: finalSeoTitle,
           seoDesc: finalSeoDesc,
           seoKeywords: finalSeoKeywords,
           seoAuto: isAutoSeo,
-          promos: promoIds,
+          promoIds, // Use promoIds for array of promo references
+          promos: [], // Will be populated by backend
           isFeatured: false,
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         })
 
         result.success++

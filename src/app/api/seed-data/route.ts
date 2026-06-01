@@ -98,13 +98,28 @@ export async function GET() {
     })
 
     // Format properties with promo data
-    const formattedProperties = sortedProperties.map((prop: any) => ({
-      ...prop,
-      images: Array.isArray(prop.images) ? prop.images : [],
-      promos: prop.promoIds
-        ? prop.promoIds.map((promoId: string) => promos.find((p: any) => p.id === promoId)).filter(Boolean)
-        : [],
-    }))
+    const formattedProperties = sortedProperties.map((prop: any) => {
+      // Handle images that might be stored as JSON string or already as array
+      let images: string[] = []
+      if (Array.isArray(prop.images)) {
+        images = prop.images
+      } else if (typeof prop.images === 'string') {
+        try {
+          images = JSON.parse(prop.images)
+        } catch {
+          // Try comma-separated fallback
+          images = prop.images.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+        }
+      }
+
+      return {
+        ...prop,
+        images,
+        promos: prop.promoIds
+          ? prop.promoIds.map((promoId: string) => promos.find((p: any) => p.id === promoId)).filter(Boolean)
+          : [],
+      }
+    })
 
     // Format articles
     const formattedArticles = sortedArticles.map((art: any) => ({

@@ -69,11 +69,11 @@ const properties = [
     type: 'Rumah',
     buildingType: 'Type 36/72',
     description: 'Rumah minimalis modern dengan desain kontemporer. Lokasi strategis dekat akses tol dan pusat perbelanjaan. Dilengkapi dengan 2 kamar tidur, 1 kamar mandi, carport, dan taman.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'rumah-minimalis-modern-ciawi-bogor',
     seoTitle: 'Rumah Minimalis Modern di Ciawi Bogor - PropertiHub',
@@ -91,10 +91,10 @@ const properties = [
     type: 'Apartemen',
     buildingType: 'Type 2BR',
     description: 'Apartemen mewah dengan fasilitas lengkap: kolam renang, gym, area bermain anak, dan keamanan 24 jam. Dekat dengan stasiun KRL dan pusat perbelanjaan.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'apartemen-mewah-depok',
     seoTitle: 'Apartemen Mewah di Depok - PropertiHub',
@@ -112,9 +112,9 @@ const properties = [
     type: 'Ruko',
     buildingType: '3 Lantai',
     description: 'Ruko 3 lantai cocok untuk usaha atau kantor. Lokasi di area industri Cikarang dengan akses mudah dari tol. Parkir luas dan tata ruang fleksibel.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1596395819057-d983a4e4e83f?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'ruko-3-lantai-cikarang',
     seoTitle: 'Ruko 3 Lantai di Cikarang - PropertiHub',
@@ -132,9 +132,9 @@ const properties = [
     type: 'Tanah',
     buildingType: 'Kavling 100m²',
     description: 'Tanah kavling siap bangun dengan pemandangan pegunungan yang indah. Lingkungan asri dan sejuk. Cocok untuk villa atau rumah tinggal.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'tanah-kavling-cisarua',
     seoTitle: 'Tanah Kavling Siap Bangun di Cisarua - PropertiHub',
@@ -152,10 +152,10 @@ const properties = [
     type: 'Rumah',
     buildingType: 'Type 45/90',
     description: 'Rumah cluster dengan sistem keamanan one gate system. 3 kamar tidur, 2 kamar mandi, carport, dan taman. Dekat stasiun KRL dan akses tol.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1600573472550-8090b5e0745e?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'rumah-cluster-cibinong',
     seoTitle: 'Rumah Cluster di Cibinong - PropertiHub',
@@ -173,9 +173,9 @@ const properties = [
     type: 'Apartemen',
     buildingType: 'Type Studio',
     description: 'Apartemen studio compact di BSD City. Cocok untuk profesional atau mahasiswa. Fasilitas lengkap dan akses mudah ke pusat kota.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'apartemen-studio-bsd',
     seoTitle: 'Apartemen Studio di BSD City - PropertiHub',
@@ -193,10 +193,10 @@ const properties = [
     type: 'Rumah',
     buildingType: 'Type 70/90',
     description: 'Rumah 2 lantai modern dengan 4 kamar tidur dan 3 kamar mandi. Carport 2 mobil dan taman belakang. Lokasi dekat stasiun KRL.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=800&q=80',
       'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'rumah-2-lantai-bojonggede',
     seoTitle: 'Rumah 2 Lantai di Bojonggede - PropertiHub',
@@ -214,9 +214,9 @@ const properties = [
     type: 'Tanah',
     buildingType: 'Kavling 120m²',
     description: 'Tanah kavling premium di area berkembang Citeureup. Akses mudah ke tol dan pusat industri. Potensi kenaikan nilai tinggi.',
-    images: JSON.stringify([
+    images: [
       'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-    ]),
+    ],
     brochure: '',
     permalink: 'tanah-kavling-citeureup',
     seoTitle: 'Tanah Kavling Premium di Citeureup - PropertiHub',

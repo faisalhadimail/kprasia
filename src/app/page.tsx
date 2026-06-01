@@ -1542,7 +1542,7 @@ function AdminPropertyForm() {
       description,
       promoIds: selectedPromos,
       brochure,
-      images: JSON.stringify(images),
+      images, // Send as array, not JSON string
       permalink,
       seoTitle,
       seoDesc,
