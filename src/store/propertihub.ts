@@ -303,6 +303,8 @@ export const useStore = create<AppState>((set, get) => ({
       })
       const data = await res.json()
       if (data.success) {
+        // Save admin user info to localStorage
+        localStorage.setItem('propertihub_admin_user', JSON.stringify(data.user))
         set({ isAdmin: true, adminUser: data.user })
         return true
       }
@@ -311,7 +313,11 @@ export const useStore = create<AppState>((set, get) => ({
       return false
     }
   },
-  logout: () => set({ isAdmin: false, adminUser: null, screen: 'front-home', previousScreen: 'front-home' }),
+  logout: () => {
+    // Clear admin user info from localStorage
+    localStorage.removeItem('propertihub_admin_user')
+    set({ isAdmin: false, adminUser: null, screen: 'front-home', previousScreen: 'front-home' })
+  },
 
   // Data
   properties: [],

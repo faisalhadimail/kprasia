@@ -4122,7 +4122,7 @@ function SelectField({ label, value, onChange, options, placeholder = 'Pilih...'
    ═══════════════════════════════════════════════════ */
 
 export function AppContent({ initialSlug }: { initialSlug?: string } = {}) {
-  const { screen, fetchAllData, isDark, properties } = useStore()
+  const { screen, fetchAllData, isDark, properties, isAdmin } = useStore()
   const slugHandledRef = useRef(false)
 
   useEffect(() => {
@@ -4132,6 +4132,40 @@ export function AppContent({ initialSlug }: { initialSlug?: string } = {}) {
   useEffect(() => {
     fetchAllData()
   }, [fetchAllData])
+
+  // Check admin login from localStorage on mount
+  useEffect(() => {
+    const adminUserStr = localStorage.getItem('propertihub_admin_user')
+    const adminLoginFlag = localStorage.getItem('propertihub_admin_login')
+
+    if (adminUserStr) {
+      try {
+        const adminUser = JSON.parse(adminUserStr)
+        useStore.setState({ isAdmin: true, adminUser })
+      } catch (e) {
+        console.error('Failed to parse admin user from localStorage:', e)
+      }
+    }
+
+    // If user just logged in from /admin page, redirect to dashboard
+    if (adminLoginFlag === 'true') {
+      localStorage.removeItem('propertihub_admin_login')
+      if (adminUserStr) {
+        useStore.getState().navigate('admin-dashboard')
+      }
+    }
+  }, [])
+
+  // Check admin login flag from localStorage (for immediate redirect)
+  useEffect(() => {
+    const adminLoginFlag = localStorage.getItem('propertihub_admin_login')
+    if (adminLoginFlag === 'true' && isAdmin) {
+      // Clear the flag
+      localStorage.removeItem('propertihub_admin_login')
+      // Navigate to admin dashboard
+      useStore.getState().navigate('admin-dashboard')
+    }
+  }, [isAdmin])
 
   // Handle direct URL access like /properti/some-permalink
   useEffect(() => {
