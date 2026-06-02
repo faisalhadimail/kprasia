@@ -133,15 +133,8 @@ function FrontHome() {
           className="absolute inset-0 w-full h-full object-cover brightness-[0.4]"
         />
         <div className="relative z-10 p-6 pt-12 flex flex-col justify-end min-h-[380px]">
-          <div className="flex items-center justify-between mb-2">
+          <div className="mb-2">
             <h1 className="text-white text-2xl font-bold">{agency?.name || 'PropertiHub'}</h1>
-            <button
-              onClick={() => navigate('admin-login')}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-              aria-label="Admin"
-            >
-              <Shield className="w-5 h-5 text-white" />
-            </button>
           </div>
           <p className="text-white/80 text-sm">Temukan Hunian Impian Anda</p>
           <button
