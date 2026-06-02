@@ -205,11 +205,26 @@ export async function POST(req: NextRequest) {
       const dp = Number(dpStr.replace(/[^0-9.-]/g, '')) || 0
       const allInCost = Number(allInCostStr.replace(/[^0-9.-]/g, '')) || 0
 
-      // Parse images
-      const images = imagesStr
-        .split(',')
-        .map(s => s.trim())
-        .filter(s => s.length > 0)
+      // Parse and validate images
+      const images: string[] = []
+      if (imagesStr) {
+        const imageUrls = imagesStr
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+
+        for (const url of imageUrls) {
+          // Basic URL validation
+          if (url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i)) {
+            images.push(url)
+          } else if (url.match(/^https?:\/\/.+/i)) {
+            // Accept other URLs but warn
+            images.push(url)
+          } else {
+            rowErrors.push({ row: r, field: 'Gambar', message: `URL tidak valid: ${url.substring(0, 50)}...` })
+          }
+        }
+      }
 
       // Parse promos
       const promoIds: string[] = []
@@ -257,11 +272,14 @@ export async function POST(req: NextRequest) {
           isActive: true,
         })
 
+        console.log(`[Bulk Upload] Property created: ${title}, images count: ${images.length}`, images)
+
         result.success++
         result.details.push({
           row: r,
           title,
           status: 'berhasil',
+          info: `${images.length} gambar diproses`,
         })
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Gagal membuat properti'
