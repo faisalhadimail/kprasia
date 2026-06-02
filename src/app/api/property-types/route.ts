@@ -51,6 +51,7 @@ export async function POST(request: Request) {
 
     // If id is provided, update existing property type
     if (id) {
+      // Build update object with only provided fields
       const updateFields: Partial<PropertyType> = {}
       if (name !== undefined) updateFields.name = name
       if (icon !== undefined) updateFields.icon = icon
@@ -60,8 +61,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ id, ...updateFields }, { status: 200 })
     }
 
-    // Otherwise create new property type
+    // Otherwise create new property type (remove 'id' from data)
+    const { id: _, ...dataWithoutId } = data
+
     const newId = await createDocument(COLLECTIONS.PROPERTY_TYPES, {
+      ...dataWithoutId,
       name,
       icon,
       order,

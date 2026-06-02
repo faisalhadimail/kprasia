@@ -410,14 +410,26 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Properties
   saveProperty: async (data) => {
-    const { showLoading, hideLoading, fetchAllData } = get()
+    const { showLoading, hideLoading, fetchAllData, editingPropertyId } = get()
     showLoading('Menyimpan properti...')
     try {
-      await fetch('/api/properties', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+      if (data.id || editingPropertyId) {
+        // Update existing property
+        const propertyId = data.id || editingPropertyId
+        const { id, ...updateData } = data
+        await fetch(`/api/properties/${propertyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+      } else {
+        // Create new property
+        await fetch('/api/properties', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
       await fetchAllData()
     } catch (e) {
       console.error(e)
@@ -440,14 +452,26 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Agents
   saveAgent: async (data) => {
-    const { showLoading, hideLoading, fetchAllData } = get()
+    const { showLoading, hideLoading, fetchAllData, editingAgentId } = get()
     showLoading('Menyimpan agen...')
     try {
-      await fetch('/api/agents', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+      if (data.id || editingAgentId) {
+        // Update existing agent
+        const agentId = data.id || editingAgentId
+        const { id, ...updateData } = data
+        await fetch(`/api/agents/${agentId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+      } else {
+        // Create new agent
+        await fetch('/api/agents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
       await fetchAllData()
     } catch (e) {
       console.error(e)
@@ -470,14 +494,26 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Promos
   savePromo: async (data) => {
-    const { showLoading, hideLoading, fetchAllData } = get()
+    const { showLoading, hideLoading, fetchAllData, editingPromoId } = get()
     showLoading('Menyimpan promo...')
     try {
-      await fetch('/api/promos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+      if (data.id || editingPromoId) {
+        // Update existing promo
+        const promoId = data.id || editingPromoId
+        const { id, ...updateData } = data
+        await fetch(`/api/promos/${promoId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+      } else {
+        // Create new promo
+        await fetch('/api/promos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
       await fetchAllData()
     } catch (e) {
       console.error(e)
@@ -546,14 +582,26 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Locations
   saveLocation: async (data) => {
-    const { showLoading, hideLoading, fetchAllData } = get()
+    const { showLoading, hideLoading, fetchAllData, editingLocationId } = get()
     showLoading('Menyimpan lokasi...')
     try {
-      await fetch('/api/locations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+      if (data.id || editingLocationId) {
+        // Update existing location
+        const locationId = data.id || editingLocationId
+        const { id, ...updateData } = data
+        await fetch(`/api/locations/${locationId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+      } else {
+        // Create new location
+        await fetch('/api/locations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
       await fetchAllData()
     } catch (e) {
       console.error(e)
@@ -576,14 +624,26 @@ export const useStore = create<AppState>((set, get) => ({
 
   // Property Types
   savePropertyType: async (data) => {
-    const { showLoading, hideLoading, fetchAllData } = get()
+    const { showLoading, hideLoading, fetchAllData, editingPropertyTypeId } = get()
     showLoading('Menyimpan jenis properti...')
     try {
-      await fetch('/api/property-types', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
+      if (data.id || editingPropertyTypeId) {
+        // Update existing property type
+        const propertyTypeId = data.id || editingPropertyTypeId
+        const { id, ...updateData } = data
+        await fetch(`/api/property-types/${propertyTypeId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData),
+        })
+      } else {
+        // Create new property type
+        await fetch('/api/property-types', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        })
+      }
       await fetchAllData()
     } catch (e) {
       console.error(e)

@@ -104,9 +104,12 @@ export async function createDocument<T = DocumentData>(
     const db = getFirebaseDb()
     const collectionRef = collection(db, collectionName)
 
+    // Remove 'id' from data - Firebase document ID is separate
+    const { id: dataId, ...dataWithoutId } = data as any
+
     // Add timestamps
     const documentData = {
-      ...data,
+      ...dataWithoutId,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }
@@ -138,9 +141,12 @@ export async function updateDocument<T = DocumentData>(
     const db = getFirebaseDb()
     const docRef = doc(db, collectionName, id)
 
+    // Remove 'id' from update data - Firebase document ID is separate
+    const { id: _id, ...dataWithoutId } = data as any
+
     // Add updated timestamp
     const updateData = {
-      ...data,
+      ...dataWithoutId,
       updatedAt: serverTimestamp(),
     }
 

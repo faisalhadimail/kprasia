@@ -1,5 +1,6 @@
-import { supabase } from '@/lib/supabase'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { COLLECTIONS } from '@/lib/firebase'
+import { getDocument, updateDocument, deleteDocument } from '@/lib/firestore'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -20,6 +21,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       updatedAt,
     } = body
 
+    // Extract and exclude 'id' from update data - Firebase document ID is separate
+    const { id: bodyId, ...dataWithoutId } = body
+
     const updateFields: Record<string, unknown> = {
       updatedAt: updatedAt || new Date().toISOString(),
     }
@@ -35,17 +39,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (seoDesc !== undefined) updateFields.seoDesc = seoDesc
     if (seoKeywords !== undefined) updateFields.seoKeywords = seoKeywords
 
-    const { data, error } = await supabase
-      .from('Article')
-      .update(updateFields)
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw error
-    return Response.json(data)
+    await updateDocument(COLLECTIONS.ARTICLES, id, updateFields)
+    const updated = await getDocument(COLLECTIONS.ARTICLES, id)
+    return NextResponse.json(updated)
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Gagal mengupdate artikel'
-    return Response.json({ error: message }, { status: 400 })
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    await deleteDocument(COLLECTIONS.ARTICLES, id)
+    return NextResponse.json({ success: true })
+  } catch {
+    return NextResponse.json({ error: 'Gagal menghapus artikel' }, { status: 400 })
   }
 }

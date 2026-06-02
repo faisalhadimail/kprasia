@@ -30,17 +30,19 @@ export async function GET() {
 export async function PUT(request: Request) {
   try {
     const data = await request.json()
+
+    // Remove 'id' from data - Firebase document ID is separate
+    const { id, ...dataWithoutId } = data
+
     const existing = await getDocument(COLLECTIONS.SEO, 'seo-1')
 
     if (existing) {
-      await updateDocument(COLLECTIONS.SEO, 'seo-1', data)
+      await updateDocument(COLLECTIONS.SEO, 'seo-1', dataWithoutId)
       const updated = await getDocument(COLLECTIONS.SEO, 'seo-1')
       return NextResponse.json(updated)
     } else {
-      const docId = await createDocument(COLLECTIONS.SEO, {
-        id: 'seo-1',
-        ...data,
-      })
+      // Create with explicit ID
+      const docId = await createDocument(COLLECTIONS.SEO, dataWithoutId, 'seo-1')
       const created = await getDocument(COLLECTIONS.SEO, docId)
       return NextResponse.json(created)
     }

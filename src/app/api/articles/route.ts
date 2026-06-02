@@ -32,7 +32,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json()
-    const docId = await createDocument(COLLECTIONS.ARTICLES, data)
+
+    // Remove 'id' from data - Firebase document ID is separate
+    const { id, ...dataWithoutId } = data
+
+    const docId = await createDocument(COLLECTIONS.ARTICLES, dataWithoutId)
 
     // Fetch the created document to return complete data
     const createdArticle = await getDocument(COLLECTIONS.ARTICLES, docId)

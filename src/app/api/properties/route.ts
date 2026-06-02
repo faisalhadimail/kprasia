@@ -61,8 +61,11 @@ export async function POST(request: Request) {
   try {
     const data = await request.json()
 
+    // Remove 'id' from data - Firebase document ID is auto-generated and separate
+    const { id, ...dataWithoutId } = data
+
     // Create document in Firestore
-    const docId = await createDocument(COLLECTIONS.PROPERTIES, data)
+    const docId = await createDocument(COLLECTIONS.PROPERTIES, dataWithoutId)
 
     // Fetch the created document to return complete data
     const createdProperty = await getDocument(COLLECTIONS.PROPERTIES, docId)
@@ -74,10 +77,7 @@ export async function POST(request: Request) {
       )
     }
 
-    return NextResponse.json(
-      { id: docId, ...createdProperty },
-      { status: 201 }
-    )
+    return NextResponse.json(createdProperty)
   } catch (error) {
     console.error('Error creating property:', error)
     return NextResponse.json(

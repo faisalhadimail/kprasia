@@ -22,11 +22,16 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const data = await request.json()
-    const docId = await createDocument(COLLECTIONS.AGENTS, data)
+
+    // Remove 'id' from data - Firebase document ID is separate
+    const { id, ...dataWithoutId } = data
+
+    const docId = await createDocument(COLLECTIONS.AGENTS, dataWithoutId)
+
     // Return the created agent with ID
     const createdAgent = {
       id: docId,
-      ...data,
+      ...dataWithoutId,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }

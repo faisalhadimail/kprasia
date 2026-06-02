@@ -31,6 +31,9 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
+    // Extract and exclude 'id' from update data - Firebase document ID is separate
+    const { id: bodyId, ...dataWithoutId } = body
+
     // Check if agent exists first
     const existingAgent = await getDocument(COLLECTIONS.AGENTS, id)
     if (!existingAgent) {
@@ -38,7 +41,7 @@ export async function PUT(
     }
 
     // Update the document
-    await updateDocument(COLLECTIONS.AGENTS, id, body)
+    await updateDocument(COLLECTIONS.AGENTS, id, dataWithoutId)
 
     // Fetch updated agent
     const updatedAgent = await getDocument(COLLECTIONS.AGENTS, id)

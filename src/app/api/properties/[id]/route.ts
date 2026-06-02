@@ -57,7 +57,9 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
+    // Extract all fields except 'id' - Firebase document ID is separate
     const {
+      id: bodyId, // Extract and exclude from update
       title,
       price,
       dp,
