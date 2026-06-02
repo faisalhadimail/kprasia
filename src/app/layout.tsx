@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { supabase } from "@/lib/supabase";
+import { getDocument } from '@/lib/firestore'
+import { COLLECTIONS } from '@/lib/firebase'
 import AnalyticsScripts from "@/components/AnalyticsScripts";
 import "./globals.css";
 
@@ -24,14 +25,14 @@ export async function generateMetadata(): Promise<Metadata> {
   } | null = null;
 
   try {
-    const { data: row } = await supabase.from("SEO").select("*").limit(1).single();
-    if (row) {
+    const seoData = await getDocument(COLLECTIONS.SEO, 'seo-1')
+    if (seoData) {
       seo = {
-        frontendUrl: row.frontendUrl || "",
-        title: row.title || "PropertiHub - Temukan Hunian Impian Anda",
-        description: row.description || "Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.",
-        keywords: row.keywords || "properti, rumah, apartemen, jual rumah, beli rumah, propertihub",
-        image: row.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        frontendUrl: seoData.frontendUrl || "",
+        title: seoData.title || "PropertiHub - Temukan Hunian Impian Anda",
+        description: seoData.description || "Platform pencarian properti terbaik untuk rumah, apartemen, dan tanah di Indonesia.",
+        keywords: seoData.keywords || "properti, rumah, apartemen, jual rumah, beli rumah, propertihub",
+        image: seoData.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
       };
     }
   } catch {
@@ -61,8 +62,8 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [
         {
           url: image,
-          width: 800,
-          height: 600,
+          width: 1200,
+          height: 630,
           alt: title,
         },
       ],

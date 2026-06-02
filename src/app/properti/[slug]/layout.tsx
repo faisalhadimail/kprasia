@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { supabase } from "@/lib/supabase";
+import { getDocument, getCollection } from '@/lib/firestore'
+import { COLLECTIONS } from '@/lib/firebase'
 
 interface Props {
   children: React.ReactNode;
@@ -15,11 +16,11 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
   } | null = null;
 
   try {
-    const { data: seoRow } = await supabase.from("SEO").select("*").limit(1).single();
-    if (seoRow) {
+    const seoData = await getDocument(COLLECTIONS.SEO, 'seo-1')
+    if (seoData) {
       seo = {
-        frontendUrl: seoRow.frontendUrl || "",
-        image: seoRow.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        frontendUrl: seoData.frontendUrl || "",
+        image: seoData.image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
       };
     }
   } catch {
@@ -42,8 +43,23 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
   } | null = null;
 
   try {
-    const { data } = await supabase.from("Property").select("title, seoTitle, seoDesc, seoKeywords, images, price, kabupaten, kecamatan, type").eq("permalink", slug).single();
-    if (data) prop = data;
+    // Query property by permalink
+    const properties = await getCollection(COLLECTIONS.PROPERTIES)
+    const property = properties.find(p => p.permalink === slug)
+
+    if (property) {
+      prop = {
+        title: property.title || '',
+        seoTitle: property.seoTitle || '',
+        seoDesc: property.seoDesc || '',
+        seoKeywords: property.seoKeywords || '',
+        images: property.images || [],
+        price: property.price || 0,
+        kabupaten: property.kabupaten || '',
+        kecamatan: property.kecamatan || '',
+        type: property.type || '',
+      }
+    }
   } catch {
     // not found
   }
@@ -87,8 +103,8 @@ export async function generateMetadata({ params }: Omit<Props, "children">): Pro
       images: [
         {
           url: ogImage,
-          width: 800,
-          height: 600,
+          width: 1200,
+          height: 630,
           alt: prop.title,
         },
       ],
