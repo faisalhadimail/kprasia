@@ -706,9 +706,9 @@ function FrontDetail() {
         <div className="px-5 mt-4">
           <div className="bg-white dark:bg-gray-900 rounded-3xl p-5">
             <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Deskripsi</h3>
-            <p className={`text-sm text-gray-600 dark:text-gray-400 leading-relaxed ${!descExpanded ? 'line-clamp-3' : ''}`}>
+            <div className={`text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap ${!descExpanded ? 'line-clamp-3' : ''}`}>
               {prop.description}
-            </p>
+            </div>
             {prop.description.length > 150 && (
               <button onClick={() => setDescExpanded(!descExpanded)} className="text-blue-600 text-sm font-medium mt-2">
                 {descExpanded ? 'Sembunyikan' : 'Baca Selengkapnya'}
@@ -1572,7 +1572,7 @@ function AdminPropertyForm() {
           <InputField label="Tipe Bangunan" value={buildingType} onChange={setBuildingType} placeholder="cth: 45/72" />
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Deskripsi</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Deskripsi properti..." className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={6} placeholder="Deskripsi properti... (Gunakan Enter untuk paragraf baru)" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
           </div>
 
           {/* Promos */}
@@ -1751,7 +1751,9 @@ function AdminDetail() {
         {prop.description && (
           <div className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-4">
             <h3 className="font-semibold text-gray-800 dark:text-gray-200 mb-2">Deskripsi</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{prop.description}</p>
+            <div className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-wrap">
+              {prop.description}
+            </div>
           </div>
         )}
         {/* SEO Info */}
