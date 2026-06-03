@@ -1,5 +1,6 @@
-import { supabase } from '@/lib/supabase'
-import { NextRequest } from 'next/server'
+import { COLLECTIONS } from '@/lib/firebase'
+import { updateDocument, deleteDocument } from '@/lib/firestore'
+import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -7,7 +8,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const body = await req.json()
     const { name, phone, type, building, location, dp, promo, status } = body
 
-    const updateFields: Record<string, unknown> = {}
+    const updateFields: Record<string, any> = {
+      updatedAt: new Date().toISOString(),
+    }
     if (name !== undefined) updateFields.name = name
     if (phone !== undefined) updateFields.phone = phone
     if (type !== undefined) updateFields.type = type
@@ -17,22 +20,26 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (promo !== undefined) updateFields.promo = promo
     if (status !== undefined) updateFields.status = status
 
-    const { data, error } = await supabase.from('Visitor').update(updateFields).eq('id', id).select().single()
-    if (error) throw error
-    return Response.json(data)
+    await updateDocument(COLLECTIONS.VISITORS, id, updateFields)
+
+    return NextResponse.json({
+      id,
+      ...updateFields,
+    })
   } catch (error: unknown) {
+    console.error('[PUT /api/visitors/[id]] Error:', error)
     const message = error instanceof Error ? error.message : 'Gagal mengupdate pengunjung'
-    return Response.json({ error: message }, { status: 400 })
+    return NextResponse.json({ error: message }, { status: 400 })
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { error } = await supabase.from('Visitor').delete().eq('id', id)
-    if (error) throw error
-    return Response.json({ success: true })
-  } catch {
-    return Response.json({ error: 'Gagal menghapus pengunjung' }, { status: 400 })
+    await deleteDocument(COLLECTIONS.VISITORS, id)
+    return NextResponse.json({ success: true })
+  } catch (error: unknown) {
+    console.error('[DELETE /api/visitors/[id]] Error:', error)
+    return NextResponse.json({ error: 'Gagal menghapus pengunjung' }, { status: 400 })
   }
 }
