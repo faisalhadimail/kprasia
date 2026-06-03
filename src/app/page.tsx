@@ -362,7 +362,7 @@ function FrontSearch() {
   const [buildingType, setBuildingType] = useState('')
   const [kabupaten, setKabupaten] = useState(frontFilters.kabupaten)
   const [kecamatan, setKecamatan] = useState(frontFilters.kecamatan)
-  const [dpMax, setDpMax] = useState(500000000)
+  const [dpMax, setDpMax] = useState(10000000)
   const [promo, setPromo] = useState('')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -447,7 +447,7 @@ function FrontSearch() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">Maks. DP</span>
                 <span className="text-sm font-semibold text-blue-600">{formatRupiah(dpMax)}</span>
               </div>
-              <input type="range" min={0} max={2000000000} step={50000000} value={dpMax} onChange={(e) => setDpMax(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600" />
+              <input type="range" min={0} max={100000000} step={1000000} value={dpMax} onChange={(e) => setDpMax(Number(e.target.value))} className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-600" />
             </div>
             {/* Promo */}
             {promos.length > 0 && (
